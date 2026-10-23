@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <title>GST Calculator</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #182230;
+        background: #f5f7fb;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 14% 4%, rgba(212, 231, 255, 0.62), transparent 33rem),
+          #f5f7fb;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button,
+      select {
+        cursor: pointer;
+      }
+
+      .page {
+        width: min(100% - 36px, 1040px);
+        margin: 0 auto;
+        padding: 52px 0 36px;
+      }
+
+      .topline {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        margin-bottom: 34px;
+        color: #344054;
+        font-size: 14px;
+        font-weight: 650;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 35px;
+        height: 35px;
+        place-items: center;
+        border-radius: 11px;
+        background: #e8efff;
+        color: #3158c9;
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .intro {
+        margin-bottom: 28px;
+      }
+
+      .eyebrow {
+        margin: 0 0 9px;
+        color: #3158c9;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(30px, 5vw, 42px);
+        letter-spacing: -0.045em;
+        line-height: 1.12;
+      }
+
+      .subtitle {
+        max-width: 560px;
+        margin: 12px 0 0;
+        color: #667085;
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .calculator {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 0.88fr);
+        overflow: hidden;
+        border: 1px solid #e6eaf1;
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 18px 50px rgba(25, 43, 77, 0.08);
+      }
+
+      .form-panel,
+      .result-panel {
+        padding: clamp(24px, 4vw, 38px);
+      }
+
+      .form-panel {
+        border-right: 1px solid #edf0f5;
+      }
+
+      .panel-heading {
+        margin: 0 0 25px;
+        font-size: 17px;
+        font-weight: 720;
+        letter-spacing: -0.02em;
+      }
+
+      .field {
+        margin-bottom: 22px;
+      }
+
+      .field-label {
+        display: block;
+        margin-bottom: 9px;
+        color: #475467;
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .amount-wrap {
+        position: relative;
+      }
+
+      .currency-symbol {
+        position: absolute;
+        top: 50%;
+        left: 15px;
+        color: #667085;
+        font-size: 15px;
+        transform: translateY(-50%);
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 48px;
+        border: 1px solid #dfe4ec;
+        border-radius: 10px;
+        outline: none;
+        background: #fff;
+        color: #182230;
+        transition: border-color 140ms ease, box-shadow 140ms ease;
+      }
+
+      input {
+        padding: 0 14px;
+      }
+
+      .amount-wrap input {
+        padding-left: 35px;
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      select {
+        padding: 0 38px 0 13px;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: #6b87e8;
+        box-shadow: 0 0 0 3px rgba(78, 111, 218, 0.13);
+      }
+
+      .segmented {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid #e8ebf1;
+        border-radius: 11px;
+        background: #f7f8fa;
+      }
+
+      .segmented button {
+        min-height: 39px;
+        padding: 0 10px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #667085;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .segmented button[aria-pressed="true"] {
+        background: #fff;
+        color: #263e94;
+        box-shadow: 0 1px 4px rgba(20, 30, 55, 0.12);
+      }
+
+      .hint {
+        margin: 7px 0 0;
+        color: #98a2b3;
+        font-size: 11px;
+      }
+
+      .rate-row {
+        display: grid;
+        grid-template-columns: 1fr 112px;
+        gap: 10px;
+      }
+
+      .rate-row input {
+        padding-right: 28px;
+      }
+
+      .custom-rate {
+        position: relative;
+      }
+
+      .percent-symbol {
+        position: absolute;
+        top: 50%;
+        right: 13px;
+        color: #667085;
+        transform: translateY(-50%);
+        pointer-events: none;
+      }
+
+      .result-panel {
+        background: linear-gradient(150deg, #f9faff, #f5f7fd);
+      }
+
+      .result-label {
+        margin: 0;
+        color: #667085;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .total {
+        overflow-wrap: anywhere;
+        margin: 9px 0 25px;
+        color: #203a91;
+        font-size: clamp(34px, 5vw, 44px);
+        font-weight: 760;
+        letter-spacing: -0.055em;
+        line-height: 1.15;
+      }
+
+      .breakdown {
+        overflow: hidden;
+        border: 1px solid #e8ebf3;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .breakdown-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 15px;
+        color: #667085;
+        font-size: 13px;
+      }
+
+      .breakdown-row + .breakdown-row {
+        border-top: 1px solid #edf0f5;
+      }
+
+      .breakdown-row strong {
+        color: #344054;
+        font-size: 13px;
+        font-weight: 650;
+        text-align: right;
+      }
+
+      .breakdown-row.grand-total {
+        background: #fff;
+        color: #344054;
+        font-weight: 700;
+      }
+
+      .breakdown-row.grand-total strong {
+        color: #203a91;
+        font-size: 15px;
+        font-weight: 750;
+      }
+
+      .result-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .copy-button,
+      .reset-button {
+        min-height: 40px;
+        padding: 0 14px;
+        border: 1px solid #dfe4ec;
+        border-radius: 9px;
+        background: #fff;
+        color: #344054;
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .copy-button:hover,
+      .reset-button:hover {
+        border-color: #b9c6e8;
+        background: #fdfdff;
+      }
+
+      .copy-status {
+        align-self: center;
+        color: #28734a;
+        font-size: 12px;
+      }
+
+      .footnote {
+        margin: 19px 0 0;
+        color: #8a94a5;
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      .page-footer {
+        margin-top: 19px;
+        color: #98a2b3;
+        font-size: 11px;
+        text-align: center;
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100% - 28px, 520px);
+          padding-top: 28px;
+        }
+
+        .topline {
+          margin-bottom: 27px;
+        }
+
+        .calculator {
+          grid-template-columns: 1fr;
+        }
+
+        .form-panel {
+          border-right: 0;
+          border-bottom: 1px solid #edf0f5;
+        }
+      }
+
+      @media (max-width: 390px) {
+        .rate-row {
+          grid-template-columns: 1fr 96px;
+        }
+
+        .form-panel,
+        .result-panel {
+          padding: 22px 19px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="text/babel">
+      const { useMemo, useState } = React;
+      const rates = ["5", "12", "18", "28", "custom"];
+      const money = new Intl.NumberFormat("en-IN", {
+        style: "currency",
+        currency: "INR",
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
+
+      function App() {
+        const [amount, setAmount] = useState("1000");
+        const [rateChoice, setRateChoice] = useState("18");
+        const [customRate, setCustomRate] = useState("18");
+        const [amountMode, setAmountMode] = useState("exclusive");
+        const [taxType, setTaxType] = useState("intra");
+        const [copied, setCopied] = useState(false);
+
+        const selectedRate = rateChoice === "custom" ? customRate : rateChoice;
+        const rate = Number(selectedRate);
+        const inputAmount = Number(amount);
+        const validAmount = amount.trim() !== "" && Number.isFinite(inputAmount) && inputAmount >= 0;
+        const validRate = selectedRate.trim() !== "" && Number.isFinite(rate) && rate >= 0 && rate <= 100;
+
+        const totals = useMemo(() => {
+          if (!validAmount || !validRate) {
+            return { taxable: 0, tax: 0, total: 0 };
+          }
+
+          const multiplier = 1 + rate / 100;
+          const taxable = amountMode === "inclusive" ? inputAmount / multiplier : inputAmount;
+          const total = amountMode === "inclusive" ? inputAmount : inputAmount * multiplier;
+          return { taxable, tax: total - taxable, total };
+        }, [amountMode, inputAmount, rate, validAmount, validRate]);
+
+        const reset = () => {
+          setAmount("");
+          setRateChoice("18");
+          setCustomRate("18");
+          setAmountMode("exclusive");
+          setTaxType("intra");
+          setCopied(false);
+        };
+
+        const copySummary = async () => {
+          const taxRows =
+            taxType === "intra"
+              ? `CGST (${(rate / 2).toFixed(2)}%): ${money.format(totals.tax / 2)}\nSGST (${(rate / 2).toFixed(2)}%): ${money.format(totals.tax / 2)}`
+              : `IGST (${rate.toFixed(2)}%): ${money.format(totals.tax)}`;
+          const summary = `GST calculation\nTaxable amount: ${money.format(totals.taxable)}\n${taxRows}\nTotal: ${money.format(totals.total)}`;
+
+          try {
+            await navigator.clipboard.writeText(summary);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1800);
+          } catch (error) {
+            console.error("Could not copy GST summary to clipboard.", error);
+            setCopied(false);
+          }
+        };
+
+        const rateLabel = validRate ? `${rate.toFixed(2)}%` : "—";
+        const taxRows =
+          taxType === "intra" ? (
+            <>
+              <BreakdownRow label={`CGST (${(rate / 2).toFixed(2)}%)`} value={money.format(totals.tax / 2)} />
+              <BreakdownRow label={`SGST (${(rate / 2).toFixed(2)}%)`} value={money.format(totals.tax / 2)} />
+            </>
+          ) : (
+            <BreakdownRow label={`IGST (${validRate ? rate.toFixed(2) : "—"}%)`} value={money.format(totals.tax)} />
+          );
+
+        return (
+          <main className="page">
+            <div className="topline">
+              <span className="brand-mark" aria-hidden="true">G</span>
+              <span>Simple finance tools</span>
+            </div>
+
+            <header className="intro">
+              <p className="eyebrow">India · Goods and Services Tax</p>
+              <h1>GST Calculator</h1>
+              <p className="subtitle">
+                Work out GST in seconds. Enter an amount, choose a tax rate, and see a clear tax breakdown.
+              </p>
+            </header>
+
+            <section className="calculator" aria-label="GST calculator">
+              <div className="form-panel">
+                <h2 className="panel-heading">Calculation details</h2>
+
+                <div className="field">
+                  <label className="field-label" htmlFor="amount">Amount (₹)</label>
+                  <div className="amount-wrap">
+                    <span className="currency-symbol" aria-hidden="true">₹</span>
+                    <input
+                      id="amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      inputMode="decimal"
+                      placeholder="Enter amount"
+                      value={amount}
+                      onChange={(event) => setAmount(event.target.value)}
+                    />
+                  </div>
+                  {!validAmount && <p className="hint" role="alert">Enter a valid amount of 0 or more.</p>}
+                </div>
+
+                <fieldset className="field" style={{ border: 0, margin: 0, padding: 0 }}>
+                  <legend className="field-label">Amount includes GST?</legend>
+                  <div className="segmented">
+                    <button
+                      type="button"
+                      aria-pressed={amountMode === "exclusive"}
+                      onClick={() => setAmountMode("exclusive")}
+                    >
+                      Excludes GST
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={amountMode === "inclusive"}
+                      onClick={() => setAmountMode("inclusive")}
+                    >
+                      Includes GST
+                    </button>
+                  </div>
+                </fieldset>
+
+                <div className="field">
+                  <label className="field-label" htmlFor="rate">GST rate</label>
+                  <div className="rate-row">
+                    <select id="rate" value={rateChoice} onChange={(event) => setRateChoice(event.target.value)}>
+                      {rates.map((option) => (
+                        <option key={option} value={option}>
+                          {option === "custom" ? "Custom rate" : `${option}%`}
+                        </option>
+                      ))}
+                    </select>
+                    {rateChoice === "custom" && (
+                      <div className="custom-rate">
+                        <input
+                          aria-label="Custom GST rate"
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          inputMode="decimal"
+                          value={customRate}
+                          onChange={(event) => setCustomRate(event.target.value)}
+                        />
+                        <span className="percent-symbol" aria-hidden="true">%</span>
+                      </div>
+                    )}
+                  </div>
+                  {!validRate && <p className="hint" role="alert">Enter a GST rate between 0% and 100%.</p>}
+                </div>
+
+                <fieldset className="field" style={{ border: 0, margin: 0, padding: 0 }}>
+                  <legend className="field-label">Supply type</legend>
+                  <div className="segmented">
+                    <button
+                      type="button"
+                      aria-pressed={taxType === "intra"}
+                      onClick={() => setTaxType("intra")}
+                    >
+                      Intra-state
+                    </button>
+                    <button
+                      type="button"
+                      aria-pressed={taxType === "inter"}
+                      onClick={() => setTaxType("inter")}
+                    >
+                      Inter-state
+                    </button>
+                  </div>
+                  <p className="hint">Intra-state splits GST into CGST + SGST; inter-state uses IGST.</p>
+                </fieldset>
+              </div>
+
+              <aside className="result-panel" aria-live="polite">
+                <h2 className="panel-heading">Your total</h2>
+                <p className="result-label">
+                  {amountMode === "inclusive" ? "Entered amount (includes GST)" : "Amount including GST"}
+                </p>
+                <p className="total">{validAmount && validRate ? money.format(totals.total) : "—"}</p>
+
+                <div className="breakdown">
+                  <BreakdownRow label="Taxable amount" value={money.format(totals.taxable)} />
+                  {taxRows}
+                  <BreakdownRow
+                    label={`Total GST (${rateLabel})`}
+                    value={money.format(totals.tax)}
+                  />
+                  <BreakdownRow label="Total amount" value={money.format(totals.total)} total />
+                </div>
+
+                <div className="result-footer">
+                  <button className="copy-button" type="button" onClick={copySummary} disabled={!validAmount || !validRate}>
+                    Copy breakdown
+                  </button>
+                  <span className="copy-status" role="status">{copied ? "Copied" : ""}</span>
+                  <button className="reset-button" type="button" onClick={reset}>Reset</button>
+                </div>
+                <p className="footnote">
+                  Estimate only. Confirm the applicable GST rate and tax treatment for your goods or services.
+                </p>
+              </aside>
+            </section>
+
+            <footer className="page-footer">
+              A quick estimate for everyday calculations. · Developed by Abhinav sharma (joshi)
+            </footer>
+          </main>
+        );
+      }
+
+      function BreakdownRow({ label, value, total = false }) {
+        return (
+          <div className={`breakdown-row${total ? " grand-total" : ""}`}>
+            <span>{label}</span>
+            <strong>{value}</strong>
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+  </body>
+</html>
